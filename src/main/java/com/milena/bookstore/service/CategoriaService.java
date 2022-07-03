@@ -3,6 +3,7 @@ package com.milena.bookstore.service;
 import com.milena.bookstore.domain.Categoria;
 import com.milena.bookstore.dtos.CategoriaDTO;
 import com.milena.bookstore.repositories.CategoriaRepository;
+import com.milena.bookstore.service.exceptions.DataIntegrityViolationException;
 import com.milena.bookstore.service.exceptions.ObjectNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,7 +48,11 @@ public class CategoriaService {
     public void delete(Integer id) {
         Optional<Categoria> categoria = categoriaRepository.findById(id);
         if(categoria.isPresent()) {
-            categoriaRepository.deleteById(id);
+            try {
+                categoriaRepository.deleteById(id);
+            } catch (DataIntegrityViolationException e) {
+                throw new DataIntegrityViolationException("Categoria não pode ser excluida, pois possui livros associados");
+            }
         }
     }
 }
